@@ -6,6 +6,7 @@ using UnityEngine.XR.ARSubsystems;
 using Google.XR.ARCoreExtensions;
 using Unity.Netcode;
 using UnityEngine.EventSystems;
+using TMPro;
 
 public enum AnchorHostingPhase
 {
@@ -39,6 +40,7 @@ public class CloudAnchorMgr : NetworkBehaviour
     public Camera arCam;
     public GameObject anchorPrefab;
     public List<GameObject> syncPrefab = new List<GameObject>();
+    public TMP_Text textDebug;
 
     private void Awake()
     {
@@ -300,6 +302,7 @@ public class CloudAnchorMgr : NetworkBehaviour
     public void DebugLog(string msg)
     {
         // UI 디버깅 코드
+        textDebug.text = $"{msg}\n{textDebug.text}";
     }
 
     public void SpawnARSyncObject(int objNum, Vector3 relPos, Quaternion relRot)

@@ -2,6 +2,7 @@ using Unity.Netcode;
 using Unity.Netcode.Transports.UNET;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 using System.Net;
 using System.Net.Sockets;
 
@@ -11,16 +12,16 @@ public class LANMgr : MonoBehaviour
     public GameObject hostButton;
     public GameObject clientButton;
     
-    public Text text_Status;
-    public InputField inputF_IP;
+    public TMP_Text text_Status;
+    public TMP_InputField inputF_IP;
     private string currentIP;
-    public GameObject cloudAnchorMgrPrefab;
+
     public GameObject gameStatusMgrPrefab;
 
     public void StartGame()
     {
-        var cloudAnchorMgrObj = Instantiate(cloudAnchorMgrPrefab,Vector3.zero,Quaternion.identity);
-        cloudAnchorMgrObj.GetComponent<NetworkObject>().Spawn();
+        if (!NetworkManager.Singleton.IsServer) return;
+
         var gameStatusMgrObj = Instantiate(gameStatusMgrPrefab, Vector3.zero,Quaternion.identity);
         gameStatusMgrObj.GetComponent<NetworkObject>().Spawn();
     }
