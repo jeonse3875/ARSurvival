@@ -60,6 +60,7 @@ public class CloudAnchorMgr : NetworkBehaviour
     void Start()
     {
         raycastManager = GetComponent<ARRaycastManager>();
+        anchorManager = GetComponent<ARAnchorManager>();
     }
 
     // Update is called once per frame
@@ -88,6 +89,7 @@ public class CloudAnchorMgr : NetworkBehaviour
 
         if (raycastManager.Raycast(touch.position, hits, TrackableType.PlaneWithinPolygon))
         {
+            DebugLog($"Hit PlaneWithinPolygon");
             anchorToHost = anchorManager.AddAnchor(hits[0].pose);
             cloudAnchorObj = Instantiate(anchorPrefab, anchorToHost.transform);
             if (anchorToHost != null)
