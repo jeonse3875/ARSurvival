@@ -1,20 +1,21 @@
 using Unity.Netcode;
-using Unity.Netcode.Transports.UNET;
+using Unity.Netcode.Transports.UTP;
 using UnityEngine;
-using UnityEngine.UI;
 using TMPro;
 using System.Net;
 using System.Net.Sockets;
+using UniRx;
 
 public class LANMgr : MonoBehaviour
 {
     private bool connection = false;
     public GameObject hostButton;
     public GameObject clientButton;
-    
-    public TMP_Text text_Status;
     public TMP_InputField inputF_IP;
     private string currentIP;
+
+    public Subject<int> clientCountSubject = new Subject<int>();
+    public Subject<string> ipSubject = new Subject<string>();
 
     public GameObject gameStatusMgrPrefab;
 
@@ -22,12 +23,17 @@ public class LANMgr : MonoBehaviour
     {
         if (!NetworkManager.Singleton.IsServer) return;
 
-        var gameStatusMgrObj = Instantiate(gameStatusMgrPrefab, Vector3.zero,Quaternion.identity);
+        var gameStatusMgrObj = Instantiate(gameStatusMgrPrefab, Vector3.zero, Quaternion.identity);
         gameStatusMgrObj.GetComponent<NetworkObject>().Spawn();
     }
 
     public void StartHost()
     {
+        NetworkManager.Singleton.GetComponent<UnityTransport>().SetConnectionData(
+            "127.0.0.1",
+            (ushort)7777,
+            "0.0.0.0"
+        );
         connection = NetworkManager.Singleton.StartHost();
         var host = Dns.GetHostEntry(Dns.GetHostName());
         foreach (var ip in host.AddressList)
@@ -38,12 +44,14 @@ public class LANMgr : MonoBehaviour
                 break;
             }
         }
-        //UIMgr.Singleton.startGameButton.SetActive(true);
     }
 
     public void StartClient()
     {
-        NetworkManager.Singleton.GetComponent<UNetTransport>().ConnectAddress = inputF_IP.text;
+        NetworkManager.Singleton.GetComponent<UnityTransport>().SetConnectionData(
+            inputF_IP.text,
+            (ushort)7777
+        );
         connection = NetworkManager.Singleton.StartClient();
     }
 
@@ -80,14 +88,11 @@ public class LANMgr : MonoBehaviour
             if (NetworkManager.Singleton.IsServer)
             {
                 status += $"IP: {currentIP}\n";
-                text_Status.text = currentIP;
+                ipSubject.OnNext(currentIP);
                 status += "ConnectedClients: \n";
                 int clientCount = NetworkManager.Singleton.ConnectedClients.Count;
 
-                // for (int i =1; i <= UIMgr.Singleton.userIcons.Count; i++)
-                // {
-                //     UIMgr.Singleton.userIcons[i-1].SetActive(i<=clientCount);
-                // }
+                clientCountSubject.OnNext(clientCount);
 
                 foreach (ulong uid in NetworkManager.Singleton.ConnectedClientsIds)
                 {
