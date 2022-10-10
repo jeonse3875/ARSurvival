@@ -2,10 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
-using UnityEngine.XR.ARSubsystems;
 using Google.XR.ARCoreExtensions;
 using Unity.Netcode;
-using UnityEngine.EventSystems;
 using UniRx;
 
 public enum AnchorHostingPhase
@@ -18,16 +16,15 @@ public enum AnchorResolvingPhase
     nothingToResolve, readyToResolve, resolveInProgress, success, fail
 }
 
-[RequireComponent(typeof(ARRaycastManager),typeof(ARAnchorManager))]
+[RequireComponent(typeof(ARAnchorManager),typeof(InputProcess))]
 public class CloudAnchorMgr : NetworkBehaviour
 {
     public static CloudAnchorMgr Singleton;
     [HideInInspector]
     public ARCloudAnchor cloudAnchor;
     private ARAnchor anchorToHost;
-    private ARRaycastManager raycastManager;
+    private InputProcess inputProcess;
     private ARAnchorManager anchorManager;
-    private List<ARRaycastHit> hits = new List<ARRaycastHit>();
     [HideInInspector]
     public AnchorHostingPhase hostPhase;
     [HideInInspector]
@@ -58,48 +55,37 @@ public class CloudAnchorMgr : NetworkBehaviour
     }
 
     // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
-        raycastManager = GetComponent<ARRaycastManager>();
         anchorManager = GetComponent<ARAnchorManager>();
+        inputProcess = GetComponent<InputProcess>();
+
+        inputProcess.arRayHitSubject.Subscribe(PlaceCloudAnchor);
     }
 
     // Update is called once per frame
-    void Update()
+    private void Update()
     {
-        InputProcess();
         HostResolveProcess();
     }
 
-    private void InputProcess()
+    private void PlaceCloudAnchor(ARRaycastHit hit)
     {
-        if (Input.touchCount < 1) return;
-
-        Touch touch = Input.GetTouch(0);
-
-        if (touch.phase != TouchPhase.Began) return;
-
-        if (EventSystem.current.IsPointerOverGameObject(Input.GetTouch(0).fingerId)) return;
-
-
         if (!NetworkManager.IsServer)
         {
             DebugLog($"You cannot create cloud anchor.");
             return;
         }
 
-        if (raycastManager.Raycast(touch.position, hits, TrackableType.PlaneWithinPolygon))
+        DebugLog($"Hit PlaneWithinPolygon");
+        anchorToHost = anchorManager.AddAnchor(hit.pose);
+        cloudAnchorObj = Instantiate(anchorPrefab, anchorToHost.transform);
+        if (anchorToHost != null)
         {
-            DebugLog($"Hit PlaneWithinPolygon");
-            anchorToHost = anchorManager.AddAnchor(hits[0].pose);
-            cloudAnchorObj = Instantiate(anchorPrefab, anchorToHost.transform);
-            if (anchorToHost != null)
-            {
-                hostPhase = AnchorHostingPhase.readyToHost;
-            }
-            DebugLog($"Anchor created at {anchorToHost.transform.position}");
-            isStartEstimate = true;
+            hostPhase = AnchorHostingPhase.readyToHost;
         }
+        DebugLog($"Anchor created at {anchorToHost.transform.position}");
+        isStartEstimate = true;
     }
 
     private void HostResolveProcess()
