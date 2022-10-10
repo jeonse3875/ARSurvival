@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -39,6 +40,8 @@ public class CloudAnchorMgr : NetworkBehaviour
     public List<GameObject> syncPrefab = new List<GameObject>();
 
     public Subject<string> logSubject = new Subject<string>();
+    public Subject<string> logInUpdateSubject = new Subject<string>();
+    private IDisposable arRayHitDisposable;
 
     private void Awake()
     {
@@ -60,13 +63,24 @@ public class CloudAnchorMgr : NetworkBehaviour
         anchorManager = GetComponent<ARAnchorManager>();
         inputProcess = GetComponent<InputProcess>();
 
-        inputProcess.arRayHitSubject.Subscribe(PlaceCloudAnchor);
+        ActivatePlacingMode();
     }
 
     // Update is called once per frame
     private void Update()
     {
         HostResolveProcess();
+    }
+
+    public void ActivatePlacingMode()
+    {
+        arRayHitDisposable?.Dispose();
+        arRayHitDisposable = inputProcess.arRayHitSubject.Subscribe(PlaceCloudAnchor);
+    }
+
+    public void DeactivatePlacingMode()
+    {
+        arRayHitDisposable?.Dispose();
     }
 
     private void PlaceCloudAnchor(ARRaycastHit hit)
@@ -77,27 +91,31 @@ public class CloudAnchorMgr : NetworkBehaviour
             return;
         }
 
-        DebugLog($"Hit PlaneWithinPolygon");
         anchorToHost = anchorManager.AddAnchor(hit.pose);
-        cloudAnchorObj = Instantiate(anchorPrefab, anchorToHost.transform);
+
         if (anchorToHost != null)
         {
             hostPhase = AnchorHostingPhase.readyToHost;
+            cloudAnchorObj = Instantiate(anchorPrefab, anchorToHost.transform);
+            DebugLog($"Anchor created at {anchorToHost.transform.position}");
+            isStartEstimate = true;
+            DeactivatePlacingMode();
         }
-        DebugLog($"Anchor created at {anchorToHost.transform.position}");
-        isStartEstimate = true;
+        else
+        {
+            DebugLog($"Anchor is null");
+        }
     }
 
     private void HostResolveProcess()
     {
         FeatureMapQuality quality = FeatureMapQuality.Insufficient;
 
-        if (isStartEstimate) { quality = anchorManager.EstimateFeatureMapQualityForHosting(GetCamPose()); }
-
-        Vector3 anchorPos = Vector3.zero;
-        if (cloudAnchor != null) { anchorPos = cloudAnchor.transform.position; }
-
-        //DebugLog($"Anchor: {anchorPos}, Map Quality: {quality.ToString()}, Host: {hostPhase.ToString()}, Resolve: {resolvePhase.ToString()}, Cloud Anchor State: {cloudAnchor?.cloudAnchorState.ToString()}");
+        if (isStartEstimate) 
+        { 
+            quality = anchorManager.EstimateFeatureMapQualityForHosting(GetCamPose()); 
+            DebugLogInUpdate($"Hosting Quality: {quality.ToString()}");
+        }
 
         if (anchorToHost == null)
         {
@@ -129,6 +147,7 @@ public class CloudAnchorMgr : NetworkBehaviour
 
         idToResolve = id;
         DebugLog($"Receive Anchor ID: {idToResolve}");
+        resolvePhase = AnchorResolvingPhase.readyToResolve;
     }
 
     private Pose GetCamPose()
@@ -139,15 +158,13 @@ public class CloudAnchorMgr : NetworkBehaviour
     public void HostAnchor()
     {
         DebugLog("Host Anchor ...");
-        var quality = anchorManager.EstimateFeatureMapQualityForHosting(GetCamPose());
-        DebugLog($"Feature map quality: {quality.ToString()}");
         cloudAnchor = anchorManager.HostCloudAnchor(anchorToHost, 1);
         hostPhase = AnchorHostingPhase.hostInProgress;
 
         if (cloudAnchor == null)
         {
             //fail
-            DebugLog("Host failed");
+            DebugLog($"Hosting failed");
             hostPhase = AnchorHostingPhase.fail;
         }
         else
@@ -157,28 +174,39 @@ public class CloudAnchorMgr : NetworkBehaviour
         }
     }
 
-    void CheckHostProgress()
+    private void CheckHostProgress()
     {
         var state = cloudAnchor.cloudAnchorState;
-        DebugLog($"Host State: {state.ToString()}");
+        DebugLogInUpdate($"Host State: {state.ToString()}");
         
         if (state == CloudAnchorState.Success)
         {
             hostPhase = AnchorHostingPhase.success;
             idToResolve = cloudAnchor.cloudAnchorId;
-            DebugLog($"Successfully Hosted. Anchor ID: {idToResolve}");
+            DebugLogInUpdate($"Successfully Hosted. Anchor ID: {idToResolve}");
             resolvePhase = AnchorResolvingPhase.readyToResolve;
             SendAnchorIDClientRPC(idToResolve);
+            isStartEstimate = false;
         }
         else if (state != CloudAnchorState.TaskInProgress)
         {
             hostPhase = AnchorHostingPhase.fail;
+            SetCloudAnchorDefault();
         }
         else
         {
             hostPhase = AnchorHostingPhase.hostInProgress;
         }
 
+    }
+
+    private void SetCloudAnchorDefault()
+    {
+        isStartEstimate = false;
+        Destroy(cloudAnchor.gameObject);
+        Destroy(cloudAnchorObj);
+        Destroy(anchorToHost.gameObject);
+        ActivatePlacingMode();
     }
 
     public void CreateTestAnchor()
@@ -212,7 +240,7 @@ public class CloudAnchorMgr : NetworkBehaviour
     void CheckResolveProgress()
     {
         var state = cloudAnchor.cloudAnchorState;
-        DebugLog($"Resolve State: {state.ToString()}");
+        DebugLogInUpdate($"Resolve State: {state.ToString()}");
 
         if (state == CloudAnchorState.Success)
         {
@@ -220,11 +248,12 @@ public class CloudAnchorMgr : NetworkBehaviour
             var pos = cloudAnchor.pose.position;
             if (cloudAnchorObj != null) { Destroy(cloudAnchorObj); }
             cloudAnchorObj = Instantiate(anchorPrefab, cloudAnchor.transform);
-            DebugLog($"Successfully Resolved. Cloud anchor position: {pos}");
+            DebugLogInUpdate($"Successfully Resolved. Cloud anchor position: {pos}");
         }
         else if (state != CloudAnchorState.TaskInProgress)
         {
             resolvePhase = AnchorResolvingPhase.fail;
+            SetCloudAnchorDefault();
         }
         else
         {
@@ -293,6 +322,11 @@ public class CloudAnchorMgr : NetworkBehaviour
     public void DebugLog(string msg)
     {
         logSubject.OnNext(msg);
+    }
+
+    public void DebugLogInUpdate(string msg)
+    {
+        logInUpdateSubject.OnNext(msg);
     }
 
     public void SpawnARSyncObject(int objNum, Vector3 relPos, Quaternion relRot)

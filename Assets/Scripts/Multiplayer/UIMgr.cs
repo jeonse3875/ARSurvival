@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,6 +10,7 @@ public class UIMgr : MonoBehaviour
     public LANMgr lANMgr;
     public TMP_Text textClientCount;
     public TMP_Text textLog;
+    public TMP_Text textLogInUpdate;
     public TMP_Text textIP;
 
     private void Start()
@@ -21,8 +23,11 @@ public class UIMgr : MonoBehaviour
         .Subscribe(ip => textIP.text = ip);
 
         CloudAnchorMgr.Singleton.logSubject
-        .DistinctUntilChanged()
         .Subscribe(WriteLog);
+
+        CloudAnchorMgr.Singleton.logInUpdateSubject
+        .DistinctUntilChanged()
+        .Subscribe(WriteLogInUpdate);
     }
 
     private void SetClientCountIcon(int count)
@@ -33,5 +38,10 @@ public class UIMgr : MonoBehaviour
     private void WriteLog(string msg)
     {
         textLog.text = $"{msg}\n{textLog.text}";
+    }
+
+    private void WriteLogInUpdate(string msg)
+    {
+        textLogInUpdate.text = $"{msg}\n{textLog.text}";
     }
 }
