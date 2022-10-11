@@ -32,6 +32,7 @@ public class CloudAnchorMgr : NetworkBehaviour
     public AnchorResolvingPhase resolvePhase;
     private string idToResolve;
     private bool isStartEstimate = false;
+    public bool isAnchorHosted = false;
     [HideInInspector]
     public GameObject cloudAnchorObj;
 
@@ -41,7 +42,6 @@ public class CloudAnchorMgr : NetworkBehaviour
 
     public Subject<string> logSubject = new Subject<string>();
     public Subject<string> logInUpdateSubject = new Subject<string>();
-    private IDisposable arRayHitDisposable;
 
     private void Awake()
     {
@@ -57,30 +57,17 @@ public class CloudAnchorMgr : NetworkBehaviour
         }
     }
 
-    // Start is called before the first frame update
     private void Start()
     {
         anchorManager = GetComponent<ARAnchorManager>();
         inputProcess = GetComponent<InputProcess>();
 
-        ActivatePlacingMode();
+        inputProcess.cloudAnchorHitSubject.Subscribe(PlaceCloudAnchor);
     }
 
-    // Update is called once per frame
     private void Update()
     {
         HostResolveProcess();
-    }
-
-    public void ActivatePlacingMode()
-    {
-        arRayHitDisposable?.Dispose();
-        arRayHitDisposable = inputProcess.arRayHitSubject.Subscribe(PlaceCloudAnchor);
-    }
-
-    public void DeactivatePlacingMode()
-    {
-        arRayHitDisposable?.Dispose();
     }
 
     private void PlaceCloudAnchor(ARRaycastHit hit)
@@ -99,7 +86,6 @@ public class CloudAnchorMgr : NetworkBehaviour
             cloudAnchorObj = Instantiate(anchorPrefab, anchorToHost.transform);
             DebugLog($"Anchor created at {anchorToHost.transform.position}");
             isStartEstimate = true;
-            DeactivatePlacingMode();
         }
         else
         {
@@ -187,6 +173,7 @@ public class CloudAnchorMgr : NetworkBehaviour
             resolvePhase = AnchorResolvingPhase.readyToResolve;
             SendAnchorIDClientRPC(idToResolve);
             isStartEstimate = false;
+            isAnchorHosted = true;
         }
         else if (state != CloudAnchorState.TaskInProgress)
         {
@@ -203,10 +190,14 @@ public class CloudAnchorMgr : NetworkBehaviour
     private void SetCloudAnchorDefault()
     {
         isStartEstimate = false;
+        isAnchorHosted = false;
+
         Destroy(cloudAnchor.gameObject);
+        cloudAnchor = null;
         Destroy(cloudAnchorObj);
+        cloudAnchorObj = null;
         Destroy(anchorToHost.gameObject);
-        ActivatePlacingMode();
+        anchorToHost = null;
     }
 
     public void CreateTestAnchor()
@@ -249,6 +240,9 @@ public class CloudAnchorMgr : NetworkBehaviour
             if (cloudAnchorObj != null) { Destroy(cloudAnchorObj); }
             cloudAnchorObj = Instantiate(anchorPrefab, cloudAnchor.transform);
             DebugLogInUpdate($"Successfully Resolved. Cloud anchor position: {pos}");
+
+            //임시
+            inputProcess.phase = InputPhase.NPCAnchor;
         }
         else if (state != CloudAnchorState.TaskInProgress)
         {
@@ -261,24 +255,24 @@ public class CloudAnchorMgr : NetworkBehaviour
         }
     }
 
-    public Pose GetRelativePose(Pose worldVec)
+    public Pose GetRelativePose(Pose worldPose)
     {
         if (cloudAnchor == null)
         {
             DebugLog("clouad anchor is null");
             return Pose.identity;
         }
-        return cloudAnchor.transform.InverseTransformPose(worldVec);
+        return cloudAnchor.transform.InverseTransformPose(worldPose);
     }
 
-    public Pose GetWorldPose(Pose relVec)
+    public Pose GetWorldPose(Pose relPose)
     {
         if (cloudAnchor == null)
         {
             DebugLog("clouad anchor is null");
             return Pose.identity;
         }
-        return cloudAnchor.transform.TransformPose(relVec);
+        return cloudAnchor.transform.TransformPose(relPose);
     }
 
     private void SpawnObj(int objNum, Vector3 relPos, Quaternion relRot, ulong ownerId)

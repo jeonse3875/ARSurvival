@@ -6,17 +6,26 @@ using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
 using UniRx;
 
+public enum InputPhase
+{
+    None, CloudAnchor, NPCAnchor
+}
+
 [RequireComponent(typeof(ARRaycastManager))]
 public class InputProcess : MonoBehaviour
 {
     private ARRaycastManager raycastManager;
     private List<ARRaycastHit> hits = new List<ARRaycastHit>();
 
-    public Subject<ARRaycastHit> arRayHitSubject = new Subject<ARRaycastHit>();
+    public InputPhase phase;
+    public Subject<ARRaycastHit> cloudAnchorHitSubject = new Subject<ARRaycastHit>();
+    public Subject<ARRaycastHit> nPCAnchorHitSubject = new Subject<ARRaycastHit>();
 
     private void Start()
     {
         raycastManager = GetComponent<ARRaycastManager>();
+
+        phase = InputPhase.CloudAnchor;
     }
 
     private void Update()
@@ -36,7 +45,17 @@ public class InputProcess : MonoBehaviour
 
         if (raycastManager.Raycast(touch.position, hits, TrackableType.PlaneWithinPolygon))
         {
-            arRayHitSubject.OnNext(hits[0]);
+            switch (phase)
+            {
+                case InputPhase.CloudAnchor:
+                    cloudAnchorHitSubject.OnNext(hits[0]);
+                    break;
+                case InputPhase.NPCAnchor:
+                    nPCAnchorHitSubject.OnNext(hits[0]);
+                    break;
+                default:
+                    break;
+            }
         }
     }
 }
