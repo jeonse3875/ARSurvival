@@ -13,8 +13,9 @@ GameObject:
   - component: {fileID: 5138796825969928708}
   - component: {fileID: 3881134813098504226}
   - component: {fileID: -8608712506556722340}
+  - component: {fileID: -3048260706763942569}
   m_Layer: 0
-  m_Name: NetObjCube
+  m_Name: NPCObj
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -114,3 +115,15 @@ MonoBehaviour:
   AlwaysReplicateAsRoot: 0
   DontDestroyWithOwner: 0
   AutoObjectParentSync: 1
+--- !u!114 &-3048260706763942569
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7551330161427102920}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 732f70adb628bce4ab4b1b741254592e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

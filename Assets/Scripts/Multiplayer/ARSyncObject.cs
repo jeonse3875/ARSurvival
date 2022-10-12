@@ -3,6 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
 
+public enum SyncObjNum
+{
+    NPC = 0,
+}
+
 [RequireComponent(typeof(NetworkObject))]
 public class ARSyncObject : NetworkBehaviour
 {

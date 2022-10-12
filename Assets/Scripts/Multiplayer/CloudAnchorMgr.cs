@@ -42,6 +42,7 @@ public class CloudAnchorMgr : NetworkBehaviour
 
     public Subject<string> logSubject = new Subject<string>();
     public Subject<string> logInUpdateSubject = new Subject<string>();
+    public Subject<GameObject> objSpawnSubject = new Subject<GameObject>();
 
     private void Awake()
     {
@@ -292,6 +293,7 @@ public class CloudAnchorMgr : NetworkBehaviour
         }
 
         netObj.SpawnWithOwnership(ownerId);
+        objSpawnSubject.OnNext(instance);
     }
 
     [ServerRpc(RequireOwnership = false)]
