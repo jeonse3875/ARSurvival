@@ -456,7 +456,7 @@ MonoBehaviour:
   arCam: {fileID: 875416081}
   anchorPrefab: {fileID: 987306840823423024, guid: 33a7ee65cf69b6d4c9b2fc5aec95161d, type: 3}
   syncPrefab:
-  - {fileID: 7551330161427102920, guid: 418b1ac2186f6e84394d8e24ac740e58, type: 3}
+  - {fileID: 6813185335912841240, guid: 418b1ac2186f6e84394d8e24ac740e58, type: 3}
 --- !u!114 &491180327
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -509,7 +509,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_PlanePrefab: {fileID: 862129816108037290, guid: 8fc7e76d88154c245b09f0d7b4673e36, type: 3}
-  m_DetectionMode: -1
+  m_DetectionMode: 1
 --- !u!114 &491180331
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2577,7 +2577,7 @@ MonoBehaviour:
     PlayerPrefab: {fileID: 0}
     NetworkPrefabs:
     - Override: 0
-      Prefab: {fileID: 7551330161427102920, guid: 418b1ac2186f6e84394d8e24ac740e58, type: 3}
+      Prefab: {fileID: 6813185335912841240, guid: 418b1ac2186f6e84394d8e24ac740e58, type: 3}
       SourcePrefabToOverride: {fileID: 0}
       SourceHashToOverride: 0
       OverridingTargetPrefab: {fileID: 0}

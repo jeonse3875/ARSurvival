@@ -63,24 +63,25 @@ public class DoorInteractionMgr : MonoBehaviour
     {
         foreach (var nPC in nPCList)
         {
-            var viewPos = cam.WorldToViewportPoint(nPC.transform.position);
+            var nPCPos = nPC.origin.position;
+            var viewPos = cam.WorldToViewportPoint(nPCPos);
 
             if (viewPos.x >= 0 && viewPos.x <= 1 && viewPos.y >=0 && viewPos.y <= 1 && viewPos.z > 0)
             {
                 //CloudAnchorMgr.Singleton.DebugLogInUpdate($"NPC({nPC.name}) is In Angle");
-                var origin = cam.transform.position;
-                Ray ray = new Ray(origin, nPC.transform.position - origin);
-                var nPCDistance = Vector3.Distance(origin,nPC.transform.position);
+                var camPos = cam.transform.position;
+                Ray ray = new Ray(camPos, nPCPos - camPos);
+                var nPCDistance = Vector3.Distance(camPos,nPCPos);
 
                 if (raycastManager.Raycast(ray, hits, TrackableType.Depth))
                 {
-                    if (hits[0].distance < nPCDistance)
+                    if (hits[0].distance > nPCDistance)
                     {
                         CloudAnchorMgr.Singleton.DebugLogInUpdate($"NPC({nPC.name}) is in depth");
                     }
                     else
                     {
-                        CloudAnchorMgr.Singleton.DebugLogInUpdate($"NPC({nPC.name}) is not in depth");
+                        CloudAnchorMgr.Singleton.DebugLogInUpdate($"Dist: {nPCDistance}, Depth: {hits[0].distance}");
                     }
                 }
             }

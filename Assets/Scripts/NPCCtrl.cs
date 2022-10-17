@@ -4,15 +4,10 @@ using UnityEngine;
 
 public class NPCCtrl : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    public Transform origin;
 
-    // Update is called once per frame
-    void Update()
+    private void Start()
     {
-        
+        origin = transform.Find("Origin");
     }
 }
