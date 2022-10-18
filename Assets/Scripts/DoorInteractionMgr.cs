@@ -29,6 +29,9 @@ public class DoorInteractionMgr : MonoBehaviour
         .Subscribe(OnNPCSpawn);
 
         cam = Camera.main;
+
+        Type type = typeof(MotionStereoDepthDataSource);
+        Debug.Log(type.AssemblyQualifiedName);
     }
 
     private void Update()
