@@ -47,8 +47,14 @@ public class DoorInteractionMgr : MonoBehaviour
             return;
         }
 
-        var worldPose = hit.pose;
+        var dir = CloudAnchorMgr.Singleton.cloudAnchorObj.transform.position - hit.pose.position;
+        var rot = Quaternion.LookRotation(dir,CloudAnchorMgr.Singleton.cloudAnchorObj.transform.up);
+        var worldPose = new Pose(hit.pose.position, rot);
         var relPose = CloudAnchorMgr.Singleton.GetRelativePose(worldPose);
+        relPose = new Pose(new Vector3(relPose.position.x,0f,relPose.position.z),relPose.rotation);
+        var euler = relPose.rotation.eulerAngles;
+        euler = new Vector3(0f,euler.y,0f);
+        relPose.rotation = Quaternion.Euler(euler);
         CloudAnchorMgr.Singleton.SpawnARSyncObject((int)SyncObjNum.NPC, relPose.position, relPose.rotation);
     }
 

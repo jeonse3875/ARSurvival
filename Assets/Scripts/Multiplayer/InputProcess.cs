@@ -50,6 +50,15 @@ public class InputProcess : MonoBehaviour
                 case InputPhase.CloudAnchor:
                     cloudAnchorHitSubject.OnNext(hits[0]);
                     break;
+                default:
+                    break;
+            }
+        }
+
+        if (raycastManager.Raycast(touch.position, hits, TrackableType.Depth))
+        {
+            switch (phase)
+            {
                 case InputPhase.NPCAnchor:
                     nPCAnchorHitSubject.OnNext(hits[0]);
                     break;
