@@ -7,20 +7,23 @@ using UnityEngine.XR.ARSubsystems;
 using Unity.Netcode;
 using UniRx;
 
-[RequireComponent(typeof(InputProcess),typeof(ARRaycastManager))]
+[RequireComponent(typeof(InputProcess),typeof(ARRaycastManager),typeof(ARAnchorManager))]
 public class DoorInteractionMgr : MonoBehaviour
 {
     private InputProcess inputProcess;
     private ARRaycastManager raycastManager;
+    private ARAnchorManager anchorManager;
     private List<ARRaycastHit> hits = new List<ARRaycastHit>();
     private GameObject nPCObj;
     private List<NPCCtrl> nPCList = new List<NPCCtrl>();
     private Camera cam;
+    public GameObject nPCPrefab;
 
     private void Start()
     {
         inputProcess = GetComponent<InputProcess>();
         raycastManager = GetComponent<ARRaycastManager>();
+        anchorManager = GetComponent<ARAnchorManager>();
 
         inputProcess.nPCAnchorHitSubject.Subscribe(PlaceNPCAnchor);
 
@@ -47,6 +50,7 @@ public class DoorInteractionMgr : MonoBehaviour
             return;
         }
 
+        // 클라우드 앵커 동기화 방식
         var dir = CloudAnchorMgr.Singleton.cloudAnchorObj.transform.position - hit.pose.position;
         var rot = Quaternion.LookRotation(dir,CloudAnchorMgr.Singleton.cloudAnchorObj.transform.up);
         var worldPose = new Pose(hit.pose.position, rot);
@@ -55,7 +59,13 @@ public class DoorInteractionMgr : MonoBehaviour
         var euler = relPose.rotation.eulerAngles;
         euler = new Vector3(0f,euler.y,0f);
         relPose.rotation = Quaternion.Euler(euler);
-        CloudAnchorMgr.Singleton.SpawnARSyncObject((int)SyncObjNum.NPC, relPose.position, relPose.rotation);
+        //CloudAnchorMgr.Singleton.SpawnARSyncObject((int)SyncObjNum.NPC, relPose.position, relPose.rotation);
+
+        // 앵커 생성 방식
+        var anchor = anchorManager.AddAnchor(hit.pose);
+        worldPose = CloudAnchorMgr.Singleton.GetWorldPose(relPose);
+        Instantiate(nPCPrefab,worldPose.position,worldPose.rotation,anchor.transform);
+        //rpc 호출
     }
 
     private void OnNPCSpawn(GameObject obj)
