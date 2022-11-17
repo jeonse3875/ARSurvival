@@ -31,6 +31,21 @@ public class InputProcess : MonoBehaviour
     private void Update()
     {
         GetTouchInput();
+        CheckPanorama();
+    }
+
+    private void CheckPanorama()
+    {
+        Ray ray = Camera.main.ViewportPointToRay(new Vector3 (0.5f, 0.5f, 0));
+        RaycastHit hit;
+        if (Physics.Raycast(ray,out hit))
+        {
+            if (hit.transform.CompareTag("Panorama"))
+            {
+                CloudAnchorMgr.Singleton.DebugLog("Find panorama target. Create Mesh from depth.");
+                Destroy(hit.transform.gameObject);
+            }
+        }
     }
 
     private void GetTouchInput()
