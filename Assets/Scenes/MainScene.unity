@@ -796,7 +796,7 @@ MonoBehaviour:
   isAnchorHosted: 0
   cloudAnchorObj: {fileID: 0}
   arCam: {fileID: 875416081}
-  anchorPrefab: {fileID: 7086591490178047072, guid: be1a1be5506cc3345939946bf6ff6b6b, type: 3}
+  anchorPrefab: {fileID: 8232756677710378700, guid: f43b9b4ad79e4394aa28229f0f871547, type: 3}
   syncPrefab:
   - {fileID: 6813185335912841240, guid: 418b1ac2186f6e84394d8e24ac740e58, type: 3}
 --- !u!114 &491180327
@@ -921,6 +921,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cameraTargetPrefab: {fileID: 545677855615849106, guid: 9237da0f030629c4b96fa2e6b7acc29f, type: 3}
+  depthMeshGenerator: {fileID: 8159526046059676620, guid: 41c74405c3dda8d4c82afe828b4f72b5, type: 3}
 --- !u!1 &682005111
 GameObject:
   m_ObjectHideFlags: 0
@@ -2690,7 +2691,7 @@ MonoBehaviour:
   Projectiles:
   - {fileID: 987306840823423024, guid: 33a7ee65cf69b6d4c9b2fc5aec95161d, type: 3}
   ProjectileLifetimeS: 180
-  Render: 0
+  Render: 1
   UseRawDepth: 0
   ExtendMeshEdges: 1
   ForwardOffset: 0.25

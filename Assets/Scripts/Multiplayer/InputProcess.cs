@@ -20,6 +20,7 @@ public class InputProcess : MonoBehaviour
     public InputPhase phase;
     public Subject<ARRaycastHit> cloudAnchorHitSubject = new Subject<ARRaycastHit>();
     public Subject<ARRaycastHit> nPCAnchorHitSubject = new Subject<ARRaycastHit>();
+    public Subject<Vector3> panoramaTargetDetectSubject = new Subject<Vector3>();
 
     private void Start()
     {
@@ -43,6 +44,7 @@ public class InputProcess : MonoBehaviour
             if (hit.transform.CompareTag("Panorama"))
             {
                 CloudAnchorMgr.Singleton.DebugLog("Find panorama target. Create Mesh from depth.");
+                panoramaTargetDetectSubject.OnNext(hit.transform.position);
                 Destroy(hit.transform.gameObject);
             }
         }
