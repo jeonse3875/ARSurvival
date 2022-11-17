@@ -6,16 +6,16 @@ using UniRx;
 public class AREnvironmentMgr : MonoBehaviour
 {
     public GameObject cameraTargetPrefab;
-    public GameObject depthMeshGenerator;
-    private bool isPanorama = false;
-    private Queue<DepthMeshCollider> depthMeshes = new Queue<DepthMeshCollider>();
-    private InputProcess input;
+    public GameObject depthMeshObj;
+    private int leftMeshCount = -1;
+    private Queue<MeshFilter> depthMeshes = new Queue<MeshFilter>();
+    public MeshCollider originalMesh;
+    public InputProcess inputProcess;
+    public DepthMeshCollider depthMeshCollider;
 
     private void Start() 
     {
-        input = GetComponent<InputProcess>();
-
-        input.panoramaTargetDetectSubject.Subscribe(OnDetected);
+        inputProcess.panoramaTargetDetectSubject.Subscribe(OnPanoramaTargetDetected);
     }
 
     private void Update() 
@@ -31,7 +31,6 @@ public class AREnvironmentMgr : MonoBehaviour
     public void StartPanorama()
     {
         var fov = GetHorizontalFoV();
-        isPanorama = true;
         
         int count = Mathf.CeilToInt(360f/fov);
         float angle = 360f/count;
@@ -47,17 +46,26 @@ public class AREnvironmentMgr : MonoBehaviour
         {
             var targetPos = origin + rot * Vector3.forward;
             Instantiate(cameraTargetPrefab,targetPos,Quaternion.identity);
-            var generator = Instantiate(depthMeshGenerator,Vector3.zero,Quaternion.identity);
-            depthMeshes.Enqueue(generator.GetComponent<DepthMeshCollider>());
+            var mesh = Instantiate(depthMeshObj,Vector3.zero,Quaternion.identity);
+            depthMeshes.Enqueue(mesh.GetComponent<MeshFilter>());
             rot.eulerAngles = new Vector3(rot.eulerAngles.x, rot.eulerAngles.y + angle, rot.eulerAngles.z);
         }
 
+        leftMeshCount = count;
     }
 
-    private void OnDetected(Vector3 pos)
+    public void OnMeshCreated()
     {
-        var depthMesh = depthMeshes.Dequeue();
-        depthMesh.ShootProjectile();
-        depthMeshes.Enqueue(depthMesh);
+        if (leftMeshCount <= 0) return;
+
+        var mesh = depthMeshes.Dequeue();
+        mesh.sharedMesh = (Mesh)Instantiate(originalMesh.sharedMesh);
+        depthMeshes.Enqueue(mesh);
+        leftMeshCount--;
+    }
+
+    private void OnPanoramaTargetDetected(Vector3 pos)
+    {
+        depthMeshCollider.ShootProjectile();
     }
 }

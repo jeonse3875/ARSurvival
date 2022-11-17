@@ -79,6 +79,8 @@ public class DepthMeshCollider : MonoBehaviour
     /// </summary>
     [FormerlySerializedAs("colliderMeshReadyEvent")]
     public UnityEvent ColliderMeshReadyEvent;
+    [FormerlySerializedAs("colliderMeshForPanoramaReadyEvent")]
+    public UnityEvent ColliderMeshForPanoramaReadyEvent;
 
     /// <summary>
     /// How much thrust are we giving to the projectile.
@@ -381,6 +383,7 @@ public class DepthMeshCollider : MonoBehaviour
     private void OnColliderMeshReady()
     {
         ColliderMeshReadyEvent?.Invoke();
+        ColliderMeshForPanoramaReadyEvent?.Invoke();
     }
 
     private void UpdateComputeShaderVariables()

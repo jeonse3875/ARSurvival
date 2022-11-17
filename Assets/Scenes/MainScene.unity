@@ -922,7 +922,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cameraTargetPrefab: {fileID: 545677855615849106, guid: 9237da0f030629c4b96fa2e6b7acc29f, type: 3}
-  depthMeshGenerator: {fileID: 8159526046059676620, guid: 41c74405c3dda8d4c82afe828b4f72b5, type: 3}
+  depthMeshObj: {fileID: 8159526046059676620, guid: 41c74405c3dda8d4c82afe828b4f72b5, type: 3}
+  originalMesh: {fileID: 1310020785}
+  inputProcess: {fileID: 491180331}
+  depthMeshCollider: {fileID: 1310020782}
 --- !u!114 &491180336
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -937,7 +940,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_HumanSegmentationStencilMode: 0
   m_HumanSegmentationDepthMode: 0
-  m_EnvironmentDepthMode: 1
+  m_EnvironmentDepthMode: 0
   m_EnvironmentDepthTemporalSmoothing: 0
   m_OcclusionPreferenceMode: 0
 --- !u!1 &682005111
@@ -1689,14 +1692,14 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 875416080}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b15f82cc229284894964d2d30806969d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_HumanSegmentationStencilMode: 0
   m_HumanSegmentationDepthMode: 0
-  m_EnvironmentDepthMode: 1
+  m_EnvironmentDepthMode: 3
   m_EnvironmentDepthTemporalSmoothing: 0
   m_OcclusionPreferenceMode: 0
 --- !u!114 &875416088
@@ -2867,6 +2870,21 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+  ColliderMeshForPanoramaReadyEvent:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 491180335}
+        m_TargetAssemblyTypeName: AREnvironmentMgr, Assembly-CSharp
+        m_MethodName: OnMeshCreated
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   ProjectileThrust: 5
 --- !u!4 &1310020783
 Transform:
@@ -2961,7 +2979,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mgr: {fileID: 491180336}
   mgrInCam: {fileID: 875416087}
-  curStatus: 1
+  depthMeshCollider: {fileID: 1310020782}
 --- !u!1 &1480004709
 GameObject:
   m_ObjectHideFlags: 0

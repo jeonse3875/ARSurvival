@@ -9,13 +9,12 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8159526046059676623}
-  - component: {fileID: 8159526046059676622}
   - component: {fileID: 8159526046059676625}
   - component: {fileID: 8159526046059676626}
   - component: {fileID: 8159526046059676624}
   - component: {fileID: 7984778705585156823}
   m_Layer: 0
-  m_Name: DepthMeshGenerator
+  m_Name: DepthMesh
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -36,43 +35,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8159526046059676622
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8159526046059676620}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4cb3e227923f8fc41a2933fa29f7e85d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  DepthProcessingCS: {fileID: 7200000, guid: 62e80a3258b66f34a8b955e34bb4b21d, type: 3}
-  CalculateNormals: 0
-  Projectiles:
-  - {fileID: 987306840823423024, guid: 33a7ee65cf69b6d4c9b2fc5aec95161d, type: 3}
-  ProjectileLifetimeS: 180
-  Render: 1
-  UseRawDepth: 0
-  ExtendMeshEdges: 1
-  ForwardOffset: 0.25
-  ColliderMeshReadyEvent:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 7984778705585156823}
-        m_TargetAssemblyTypeName: DepthMeshDebugger, Assembly-CSharp
-        m_MethodName: OnMeshCreated
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-  ProjectileThrust: 5
 --- !u!64 &8159526046059676625
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -82,7 +44,7 @@ MeshCollider:
   m_GameObject: {fileID: 8159526046059676620}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 4
   m_Convex: 0
   m_CookingOptions: 16

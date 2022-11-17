@@ -2,41 +2,38 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
+using UnityEngine.XR.ARSubsystems;
 
 public class OcclusionToggle : MonoBehaviour
 {
     public AROcclusionManager mgr;
     public AROcclusionManager mgrInCam;
-    [HideInInspector]
-    public bool curStatus;
+    public DepthMeshCollider depthMeshCollider;
 
-    private void Start()
+    private void Update()
     {
-        mgr.enabled = false;
-        mgrInCam.enabled = true;
+        var currentActiveMgr = mgr;
+        if (mgrInCam.currentEnvironmentDepthMode != EnvironmentDepthMode.Disabled) {currentActiveMgr = mgrInCam;}
+        depthMeshCollider.SetOcclusionManager(currentActiveMgr);
     }
 
     public void SetOcclusion(bool status)
     {
-        mgrInCam.enabled = status;
-        mgr.enabled = !status;
-        curStatus = status;
-    }
-
-    private AROcclusionManager GetActiveMgr()
-    {
-        if (curStatus)
-            return mgrInCam;
+        if (status)
+        {
+            mgrInCam.requestedEnvironmentDepthMode = EnvironmentDepthMode.Best;
+            mgr.requestedEnvironmentDepthMode = EnvironmentDepthMode.Disabled;
+        }
         else
-            return mgr;
+        {
+            mgrInCam.requestedEnvironmentDepthMode = EnvironmentDepthMode.Disabled;
+            mgr.requestedEnvironmentDepthMode = EnvironmentDepthMode.Best;
+        }
     }
 
     public void Toggle()
     {
+        var curStatus = mgrInCam.currentEnvironmentDepthMode != EnvironmentDepthMode.Disabled;
         SetOcclusion(!curStatus);
-        foreach (var depthMeshCollider in FindObjectsOfType<DepthMeshCollider>())
-        {
-            depthMeshCollider.SetOcclusionManager(GetActiveMgr());
-        }
     }
 }
