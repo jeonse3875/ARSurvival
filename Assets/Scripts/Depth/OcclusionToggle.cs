@@ -23,8 +23,20 @@ public class OcclusionToggle : MonoBehaviour
         curStatus = status;
     }
 
+    private AROcclusionManager GetActiveMgr()
+    {
+        if (curStatus)
+            return mgrInCam;
+        else
+            return mgr;
+    }
+
     public void Toggle()
     {
         SetOcclusion(!curStatus);
+        foreach (var depthMeshCollider in FindObjectsOfType<DepthMeshCollider>())
+        {
+            depthMeshCollider.SetOcclusionManager(GetActiveMgr());
+        }
     }
 }

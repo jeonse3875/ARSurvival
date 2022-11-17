@@ -233,6 +233,11 @@ public class DepthMeshCollider : MonoBehaviour
         ARSession.stateChanged += OnSessionStateChanged;
     }
 
+    public void SetOcclusionManager(AROcclusionManager mgr)
+    {
+        _occlusionManager = mgr;
+    }
+
     private void Update()
     {
         if (_initialized)
