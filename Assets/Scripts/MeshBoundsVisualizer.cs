@@ -5,28 +5,38 @@ using UnityEngine;
 public class MeshBoundsVisualizer : MonoBehaviour
 {
     public GameObject boundPointIndicator;
+    public GameObject boundCenterIndicator;
+    private LineRenderer lineRenderer;
 
-    public void Visualize(Bounds bounds)
+    public struct OBBArg
     {
-        var center = bounds.center;
-        var extents = bounds.extents;
+        public Vector3[] vertices;
+        public Vector3 center;
+        public Vector3 extent;
+        public Vector3 axisX;
+        public Vector3 axisY;
+        public Vector3 axisZ;
+    }
 
-        var frontTopLeft = new Vector3(center.x - extents.x, center.y + extents.y, center.z - extents.z);
-        var frontTopRight = new Vector3(center.x + extents.x, center.y + extents.y, center.z - extents.z);
-        var frontBottomLeft = new Vector3(center.x - extents.x, center.y - extents.y, center.z - extents.z);
-        var frontBottomRight = new Vector3(center.x + extents.x, center.y - extents.y, center.z - extents.z);
-        var backTopLeft = new Vector3(center.x - extents.x, center.y + extents.y, center.z + extents.z);
-        var backTopRight = new Vector3(center.x + extents.x, center.y + extents.y, center.z + extents.z);
-        var backBottomLeft = new Vector3(center.x - extents.x, center.y - extents.y, center.z + extents.z);
-        var backBottomRight = new Vector3(center.x + extents.x, center.y - extents.y, center.z + extents.z);
+    private void Start() 
+    {
+        lineRenderer = GetComponent<LineRenderer>();
+    }
 
-        Instantiate(boundPointIndicator,frontTopLeft, Quaternion.identity);
-        Instantiate(boundPointIndicator,frontTopRight, Quaternion.identity);
-        Instantiate(boundPointIndicator,frontBottomLeft, Quaternion.identity);
-        Instantiate(boundPointIndicator,frontBottomRight, Quaternion.identity);
-        Instantiate(boundPointIndicator,backTopLeft, Quaternion.identity);
-        Instantiate(boundPointIndicator,backTopRight, Quaternion.identity);
-        Instantiate(boundPointIndicator,backBottomLeft, Quaternion.identity);
-        Instantiate(boundPointIndicator,backBottomRight, Quaternion.identity);
+    public void Visualize(OBBArg args)
+    {
+        foreach(var vertex in args.vertices)
+        {
+            Instantiate(boundPointIndicator, vertex, Quaternion.identity);
+        }
+        Instantiate(boundCenterIndicator, args.center, Quaternion.identity);
+        var positions = new Vector3[]
+        {args.vertices[0],args.vertices[1],args.vertices[2],args.vertices[3],args.vertices[0],
+        args.vertices[4],args.vertices[5],args.vertices[6],args.vertices[7],args.vertices[4],
+        args.vertices[5], args.vertices[1],args.vertices[2],args.vertices[6],args.vertices[7],args.vertices[3]};
+        lineRenderer.positionCount = positions.Length;
+        lineRenderer.SetPositions(positions);
+        
+        CloudAnchorMgr.Singleton.DebugLog($"OBB/ Center: {args.center}, Extent: {args.extent}");
     }
 }

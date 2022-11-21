@@ -416,7 +416,12 @@ public class DepthMeshCollider : MonoBehaviour
     {
         if (_occlusionManager.TryAcquireEnvironmentDepthCpuImage(out XRCpuImage image))
         {
+            CloudAnchorMgr.Singleton.DebugLog($"DepthCPUImage: Success");
             UpdateRawImage(ref _depthTexture, image);
+        }
+        else
+        {
+            CloudAnchorMgr.Singleton.DebugLog($"DepthCPUImage: Fail");
         }
 
         image.Dispose();
