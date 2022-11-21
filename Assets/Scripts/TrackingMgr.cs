@@ -17,6 +17,8 @@ public class TrackingMgr : MonoBehaviour
     public GameObject doorPrefab;
     public GameObject windowPrefab;
     private Dictionary<TrackingImage, GameObject> instances = new Dictionary<TrackingImage, GameObject>();
+    private ARPlaneManager planeManager;
+    private bool isPlaneActive = true;
 
     void OnEnable() => m_TrackedImageManager.trackedImagesChanged += OnChanged;
 
@@ -24,11 +26,18 @@ public class TrackingMgr : MonoBehaviour
 
     private void Start() 
     {
+        planeManager = GetComponent<ARPlaneManager>();
+
         instances[TrackingImage.Door] = Instantiate(doorPrefab);
         instances[TrackingImage.Window] = Instantiate(windowPrefab);
 
         instances[TrackingImage.Door].SetActive(false);
         instances[TrackingImage.Window].SetActive(false);
+    }
+
+    private void Update()
+    {
+        foreach (var plane in planeManager.trackables) { plane.gameObject.SetActive(isPlaneActive); }
     }
 
     void OnChanged(ARTrackedImagesChangedEventArgs eventArgs)
@@ -65,5 +74,10 @@ public class TrackingMgr : MonoBehaviour
     TrackingImage ToEnum(string str)
     {
         return (TrackingImage)Enum.Parse(typeof(TrackingImage), str);
+    }
+
+    public void ToggleARPlane()
+    {
+        isPlaneActive = !isPlaneActive;
     }
 }

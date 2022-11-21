@@ -87,6 +87,11 @@ public class DepthMeshCollider : MonoBehaviour
     /// </summary>
     public float ProjectileThrust = 5;
 
+    /// <summary>
+    /// 파노라마 확인용
+    /// </summary>
+    public AREnvironmentMgr environmentMgr;
+
     // Number of threads used by the compute shader.
     private const int _numThreadsX = 8;
     private const int _numThreadsY = 8;
@@ -382,8 +387,14 @@ public class DepthMeshCollider : MonoBehaviour
 
     private void OnColliderMeshReady()
     {
-        ColliderMeshReadyEvent?.Invoke();
-        ColliderMeshForPanoramaReadyEvent?.Invoke();
+        if (environmentMgr.leftMeshCount > 0)
+        {
+            ColliderMeshForPanoramaReadyEvent?.Invoke();
+        }
+        else
+        {
+            ColliderMeshReadyEvent?.Invoke();
+        }
     }
 
     private void UpdateComputeShaderVariables()

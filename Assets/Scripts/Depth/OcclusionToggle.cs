@@ -21,13 +21,13 @@ public class OcclusionToggle : MonoBehaviour
     {
         if (status)
         {
-            mgrInCam.requestedEnvironmentDepthMode = EnvironmentDepthMode.Best;
+            mgrInCam.requestedEnvironmentDepthMode = EnvironmentDepthMode.Fastest;
             mgr.requestedEnvironmentDepthMode = EnvironmentDepthMode.Disabled;
         }
         else
         {
             mgrInCam.requestedEnvironmentDepthMode = EnvironmentDepthMode.Disabled;
-            mgr.requestedEnvironmentDepthMode = EnvironmentDepthMode.Best;
+            mgr.requestedEnvironmentDepthMode = EnvironmentDepthMode.Fastest;
         }
     }
 

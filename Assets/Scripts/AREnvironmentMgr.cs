@@ -7,20 +7,19 @@ public class AREnvironmentMgr : MonoBehaviour
 {
     public GameObject cameraTargetPrefab;
     public GameObject depthMeshObj;
-    private int leftMeshCount = -1;
+    [HideInInspector]
+    public int leftMeshCount = -1;
     private Queue<MeshFilter> depthMeshes = new Queue<MeshFilter>();
     public MeshCollider originalMesh;
     public InputProcess inputProcess;
     public DepthMeshCollider depthMeshCollider;
+    private MeshBoundsVisualizer boundsVisualizer;
 
     private void Start() 
     {
-        inputProcess.panoramaTargetDetectSubject.Subscribe(OnPanoramaTargetDetected);
-    }
+        boundsVisualizer = GetComponent<MeshBoundsVisualizer>();
 
-    private void Update() 
-    {
-        //CloudAnchorMgr.Singleton.DebugLogInUpdate(GetHorizontalFoV().ToString());
+        inputProcess.panoramaTargetDetectSubject.Subscribe(OnPanoramaTargetDetected);
     }
 
     private float GetHorizontalFoV()
@@ -56,16 +55,48 @@ public class AREnvironmentMgr : MonoBehaviour
 
     public void OnMeshCreated()
     {
-        if (leftMeshCount <= 0) return;
+        if (leftMeshCount <= 0) { return; }
 
         var mesh = depthMeshes.Dequeue();
         mesh.sharedMesh = (Mesh)Instantiate(originalMesh.sharedMesh);
         depthMeshes.Enqueue(mesh);
         leftMeshCount--;
+
+        if (leftMeshCount == 0)
+        {
+            GenerateMeshBounds();
+        }
     }
 
     private void OnPanoramaTargetDetected(Vector3 pos)
     {
         depthMeshCollider.ShootProjectile();
+    }
+
+    private void GenerateMeshBounds()
+    {
+        var bounds = depthMeshes.Peek().GetComponent<Renderer>().bounds;
+        foreach(var meshFilter in depthMeshes)
+        {
+            var renderer = meshFilter.GetComponent<Renderer>();
+            var bound = renderer.bounds;
+            bounds.Encapsulate(bound);
+        }
+        boundsVisualizer.Visualize(bounds);
+        CloudAnchorMgr.Singleton.DebugLog("All panorama targets are detected. Create bounding box");
+        CloudAnchorMgr.Singleton.DebugLog($"Box extents: {bounds.extents}");
+    }
+
+    public void ToggleDepthMeshRenderer()
+    {
+        var projectileMeshRenderer = depthMeshCollider.GetComponent<Renderer>();
+        var current = projectileMeshRenderer.enabled;
+
+        projectileMeshRenderer.enabled = !current;
+        foreach(var meshFilter in depthMeshes)
+        {
+            var renderer = meshFilter.GetComponent<Renderer>();
+            renderer.enabled = !current;
+        }
     }
 }
