@@ -8,22 +8,12 @@ public class MeshBoundsVisualizer : MonoBehaviour
     public GameObject boundCenterIndicator;
     private LineRenderer lineRenderer;
 
-    public struct OBBArg
-    {
-        public Vector3[] vertices;
-        public Vector3 center;
-        public Vector3 extent;
-        public Vector3 axisX;
-        public Vector3 axisY;
-        public Vector3 axisZ;
-    }
-
     private void Start() 
     {
         lineRenderer = GetComponent<LineRenderer>();
     }
 
-    public void Visualize(OBBArg args)
+    public void Visualize(OBB args)
     {
         foreach(var vertex in args.vertices)
         {

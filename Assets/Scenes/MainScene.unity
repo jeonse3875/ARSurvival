@@ -1133,6 +1133,10 @@ MonoBehaviour:
   originalMesh: {fileID: 1310020785}
   inputProcess: {fileID: 491180331}
   depthMeshCollider: {fileID: 1310020782}
+  propList:
+  - {fileID: 11400000, guid: aad49cc6fc261ad4dbabe5ea8a66e02c, type: 2}
+  - {fileID: 11400000, guid: 5589edecba11d5e41a195f660ca38946, type: 2}
+  - {fileID: 11400000, guid: a7ab590b698e80a4581d98fb907d19f8, type: 2}
 --- !u!114 &491180336
 MonoBehaviour:
   m_ObjectHideFlags: 0

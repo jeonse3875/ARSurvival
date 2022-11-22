@@ -5,6 +5,16 @@ using UniRx;
 using g3;
 using System.Linq;
 
+public struct OBB
+{
+    public Vector3[] vertices;
+    public Vector3 center;
+    public Vector3 extent;
+    public Vector3 axisX;
+    public Vector3 axisY;
+    public Vector3 axisZ;
+}
+
 public class AREnvironmentMgr : MonoBehaviour
 {
     public GameObject cameraTargetPrefab;
@@ -16,6 +26,9 @@ public class AREnvironmentMgr : MonoBehaviour
     public InputProcess inputProcess;
     public DepthMeshCollider depthMeshCollider;
     private MeshBoundsVisualizer boundsVisualizer;
+    [HideInInspector]
+    public OBB oBB;
+    public List<DynamicPropSO> propList = new List<DynamicPropSO>();
 
     private void Start()
     {
@@ -67,6 +80,7 @@ public class AREnvironmentMgr : MonoBehaviour
         if (leftMeshCount == 0)
         {
             GenerateOBB();
+            AddPropToSpawningPool();
         }
     }
 
@@ -132,17 +146,32 @@ public class AREnvironmentMgr : MonoBehaviour
         Gizmos.DrawLine(D, H);
         Gizmos.DrawLine(C, G);
 
-        MeshBoundsVisualizer.OBBArg args;
-        args.vertices = new Vector3[]{A,B,C,D,E,F,G,H};
-        args.center = center;
-        args.extent = extends;
-        args.axisX = axisX;
-        args.axisY = axisY;
-        args.axisZ = axisZ;
+        oBB.vertices = new Vector3[] { A, B, C, D, E, F, G, H };
+        oBB.center = center;
+        oBB.extent = extends;
+        oBB.axisX = axisX;
+        oBB.axisY = axisY;
+        oBB.axisZ = axisZ;
 
-        boundsVisualizer.Visualize(args);
+        boundsVisualizer.Visualize(oBB);
 
         CloudAnchorMgr.Singleton.DebugLog("All panorama targets are detected. Create bounding box");
+        CloudAnchorMgr.Singleton.DebugLog($"Bounds Volume: {GetBoundsVolume()}");
+    }
+
+    public void AddPropToSpawningPool()
+    {
+        foreach(var prop in propList)
+        {
+            var count = prop.GetSpawnCount(GetBoundsVolume());
+            var posList = prop.GetSpawnPos(oBB,count);
+            CloudAnchorMgr.Singleton.DebugLog($"[SpawningPool] {count} {prop.name}");
+            foreach(var pos in posList)
+            {
+                //inputProcess.propSpawningPool.Add((pos,prop.prefab));
+                Instantiate(prop.prefab,pos,Quaternion.identity);
+            }
+        }
     }
 
     public void ToggleDepthMeshRenderer()
@@ -156,5 +185,11 @@ public class AREnvironmentMgr : MonoBehaviour
             var renderer = meshFilter.GetComponent<Renderer>();
             renderer.enabled = !current;
         }
+    }
+
+    public float GetBoundsVolume()
+    {
+        var volume = oBB.extent.x*2 * oBB.extent.y*2 * oBB.extent.z*2;
+        return volume;
     }
 }

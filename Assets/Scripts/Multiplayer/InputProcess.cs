@@ -22,6 +22,8 @@ public class InputProcess : MonoBehaviour
     public Subject<ARRaycastHit> nPCAnchorHitSubject = new Subject<ARRaycastHit>();
     public Subject<Vector3> panoramaTargetDetectSubject = new Subject<Vector3>();
 
+    public List<(Vector3,GameObject)> propSpawningPool = new List<(Vector3, GameObject)>();
+
     private void Start()
     {
         raycastManager = GetComponent<ARRaycastManager>();
@@ -33,13 +35,19 @@ public class InputProcess : MonoBehaviour
     {
         GetTouchInput();
         CheckPanorama();
+        
+        foreach((var pos, var prefab) in propSpawningPool)
+        {
+            if (!IsPointInAngle(pos)) {return;}
+            SpawnProp(pos,prefab);
+        }
     }
 
     private void CheckPanorama()
     {
-        Ray ray = Camera.main.ViewportPointToRay(new Vector3 (0.5f, 0.5f, 0));
+        Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
         RaycastHit hit;
-        if (Physics.Raycast(ray,out hit))
+        if (Physics.Raycast(ray, out hit))
         {
             if (hit.transform.CompareTag("Panorama"))
             {
@@ -82,6 +90,26 @@ public class InputProcess : MonoBehaviour
                 default:
                     break;
             }
+        }
+    }
+
+    public bool IsPointInAngle(Vector3 point)
+    {
+        var viewPos = Camera.main.WorldToViewportPoint(point);
+
+        return viewPos.x >= 0 && viewPos.x <= 1 && viewPos.y >= 0 && viewPos.y <= 1 && viewPos.z > 0;
+    }
+
+    public void SpawnProp(Vector3 pos, GameObject prefab)
+    {
+        Vector2 screenPoint = Camera.main.WorldToScreenPoint(pos);
+        if (raycastManager.Raycast(pos, hits, TrackableType.Depth))
+        {
+            var hit = hits[hits.Count-1];
+            Instantiate(prefab,hit.pose.position,Quaternion.identity);
+
+            CloudAnchorMgr.Singleton.DebugLog($"Prop point detected. Spawn {prefab.name} at {pos}");
+            propSpawningPool.Remove((pos,prefab));
         }
     }
 }
