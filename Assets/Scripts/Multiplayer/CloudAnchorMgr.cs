@@ -170,7 +170,7 @@ public class CloudAnchorMgr : NetworkBehaviour
         {
             hostPhase = AnchorHostingPhase.success;
             idToResolve = cloudAnchor.cloudAnchorId;
-            DebugLogInUpdate($"Successfully Hosted. Anchor ID: {idToResolve}");
+            DebugLog($"Successfully Hosted. Anchor ID: {idToResolve}");
             resolvePhase = AnchorResolvingPhase.readyToResolve;
             SendAnchorIDClientRPC(idToResolve);
             isStartEstimate = false;
@@ -240,7 +240,7 @@ public class CloudAnchorMgr : NetworkBehaviour
             var pos = cloudAnchor.pose.position;
             if (cloudAnchorObj != null) { Destroy(cloudAnchorObj); }
             cloudAnchorObj = Instantiate(anchorPrefab, cloudAnchor.transform);
-            DebugLogInUpdate($"Successfully Resolved. Cloud anchor position: {pos}");
+            DebugLog($"Successfully Resolved. Cloud anchor position: {pos}");
 
             //임시
             inputProcess.phase = InputPhase.NPCAnchor;

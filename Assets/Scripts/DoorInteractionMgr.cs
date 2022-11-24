@@ -64,7 +64,8 @@ public class DoorInteractionMgr : MonoBehaviour
         // 앵커 생성 방식
         var anchor = anchorManager.AddAnchor(hit.pose);
         worldPose = CloudAnchorMgr.Singleton.GetWorldPose(relPose);
-        Instantiate(nPCPrefab,worldPose.position,worldPose.rotation,anchor.transform);
+        var obj = Instantiate(nPCPrefab,worldPose.position,worldPose.rotation,anchor.transform);
+        OnNPCSpawn(obj);
         //rpc 호출
     }
 
