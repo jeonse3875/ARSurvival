@@ -19,14 +19,14 @@
 3. 증강현실 위치 동기화 시스템(멀티플레이)
 
 ### 1. 문과의 상호작용 기능
-<img src=".resources/DoorInteraction.png" width="400">
+<img src=".resources/DoorInteraction.PNG" width="400">
 <br>
 문과의 상호작용을 위한 문의 개방 여부 파악 방법으로 Depth Raycast를 사용하였다. 문 뒤에 설치한 Anchor까지의 거리와 해당 방향으로의 Depth 값을 비교하여 문이 열려있는지 여부를 파악한다. Depth값이 Distance보다 크다면 문이 열린 것으로 파악하고 이벤트를 발생시킨다.<br><br>
 
 <img src=".resources/DoorClose.png" width="200">
 <img src=".resources/DoorOpen.png" width="200">
 <br>
-NPC가 문에 반쯤 가려진 왼쪽 사진에서는 Distance가 1.629m, Depth가 1.182m로 추정되어 이벤트를 발생시키지 않은 상태이고, NPC가 문에 가려지지 않고 온전히 드러난 오른쪽 사진에서는 이벤트가 발생되어 빨간색으로 변한 것을 확인할 수 있다.
+NPC가 문에 반쯤 가려진 첫 번째 사진에서는 Distance가 1.629m, Depth가 1.182m로 추정되어 이벤트를 발생시키지 않은 상태이고, NPC가 문에 가려지지 않고 온전히 드러난 두 번째 사진에서는 이벤트가 발생되어 빨간색으로 변한 것을 확인할 수 있다.
 <br><br>
 
 ### 2. 주변 환경 추정 기능
