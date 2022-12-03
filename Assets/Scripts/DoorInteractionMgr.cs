@@ -18,6 +18,7 @@ public class DoorInteractionMgr : MonoBehaviour
     private List<NPCCtrl> nPCList = new List<NPCCtrl>();
     private Camera cam;
     public GameObject nPCPrefab;
+    private bool isInDepth = false;
 
     private void Start()
     {
@@ -98,10 +99,20 @@ public class DoorInteractionMgr : MonoBehaviour
                     if (hits[0].distance > nPCDistance)
                     {
                         CloudAnchorMgr.Singleton.DebugLogInUpdate($"NPC({nPC.name}) is in depth");
+                        if (!isInDepth)
+                        {
+                            nPC.OnDoorOpen();
+                            isInDepth = true;
+                        }
                     }
                     else
                     {
                         CloudAnchorMgr.Singleton.DebugLogInUpdate($"Dist: {nPCDistance}, Depth: {hits[0].distance}");
+                        if (isInDepth)
+                        {
+                            nPC.OnDoorClose();
+                            isInDepth = false;
+                        }
                     }
                 }
             }
